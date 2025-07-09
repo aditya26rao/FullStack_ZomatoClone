@@ -1,0 +1,24 @@
+.order-success {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.order-success h1 {
+  font-size: 48px;
+  color: tomato;
+  margin-bottom: 20px;
+}
+
+.order-success p {
+  font-size: 18px;
+  margin-bottom: 30px;
+}
+
+.order-success button {
+  padding: 12px 24px;
+  background-color: tomato;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
