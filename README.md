@@ -99,4 +99,4 @@ npm run preview
 
 ## Notes
 - Seed data script assigns local media images for food items.
-- If images don’t refresh immediately, hard refresh browser (`Ctrl+F5`).
+- If images donï¿½t refresh immediately, hard refresh browser (`Ctrl+F5`).
