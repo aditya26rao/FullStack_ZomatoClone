@@ -4,6 +4,8 @@ import './Cart.css';
 import { StoreContext } from '../../Context/StoreContext';
 import { useNavigate } from 'react-router-dom';
 import PreviousOrder from '../PreviousOrder/PreviousOrder';
+import { buildMediaUrl } from '../../config/api';
+import { assets } from '../../assets/assets';
 
 export default function Cart() {
   const { cartItems, removeFromCart, getTotalCartAmount } = useContext(StoreContext);
@@ -17,6 +19,7 @@ export default function Cart() {
 
   const formatCurrency = (value) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value);
+  const fallbackImage = assets.default_food_image;
 
   const handlePromoSubmit = (e) => {
     e.preventDefault();
@@ -45,7 +48,14 @@ export default function Cart() {
 
             return (
               <div className="cart-items-title cart-items-item" key={item.id}>
-                <img src={item.image} alt={item.name} />
+                <img
+                  src={buildMediaUrl(item.image) || fallbackImage}
+                  alt={item.name}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = fallbackImage;
+                  }}
+                />
                 <p>{item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}</p>
                 <p>{formatCurrency(price)}</p>
                 <p>{item.quantity}</p>

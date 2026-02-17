@@ -1,71 +1,61 @@
-
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import './FoodDisplay.css';
 import { StoreContext } from '../../Context/StoreContext';
 import FoodItem from '../FoodItem/FoodItem';
+import { buildApiUrl } from '../../config/api';
 
-export default function FoodDisplay({ searchQuery = '' }) {   // ✅ Accept searchQuery as prop
+export default function FoodDisplay({ searchQuery = '' }) {
   const { category } = useContext(StoreContext);
   const [foodList, setFoodList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [popupMessage, setPopupMessage] = useState('');
-  const foodDisplayRef = useRef(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchFood = async () => {
       setLoading(true);
+      setError('');
       try {
-        let url = 'http://localhost:8000/api/foods/';
+        const params = {};
         if (category && category !== 'All') {
-          url += `?category=${encodeURIComponent(category)}`;
+          params.category = category;
         }
 
-        const response = await axios.get(url.trim());
-        const data = response.data;
-
-        if (Array.isArray(data) && data.length > 0) {
-          setFoodList(data);
-        } else {
-          setFoodList([]);
-          showPopup(`No dishes found for "${category}"`);
-        }
-      } catch (error) {
-        console.error('❌ Error fetching food:', error);
+        const response = await axios.get(buildApiUrl('/api/foods/'), { params });
+        setFoodList(Array.isArray(response.data) ? response.data : []);
+      } catch (requestError) {
+        console.error('Error fetching food:', requestError);
         setFoodList([]);
-        showPopup('Failed to load food items.');
+        setError('Unable to load dishes right now. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchFood();
-
-    if (foodDisplayRef.current) {
-      foodDisplayRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
   }, [category]);
 
-  const showPopup = (message) => {
-    setPopupMessage(message);
-    setTimeout(() => setPopupMessage(''), 3000);
-  };
-
-  // ✅ Apply search filtering here:
-  const filteredFoodList = foodList.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const query = searchQuery.trim().toLowerCase();
+  const filteredFoodList = foodList.filter((item) => {
+    if (!query) return true;
+    return (
+      item.name?.toLowerCase().includes(query) ||
+      item.description?.toLowerCase().includes(query) ||
+      item.category?.toLowerCase().includes(query)
+    );
+  });
 
   return (
-    <div className='food-display' id='food-display' ref={foodDisplayRef}>
-      <h2>Top Dishes {category && category !== 'All' ? `: ${category}` : ''}</h2>
+    <div className='food-display' id='food-display'>
+      <h2>Top Dishes {category && category !== 'All' ? `- ${category}` : ''}</h2>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
+      {loading && <p className="food-display-feedback">Loading dishes...</p>}
+      {!loading && error && <p className="food-display-feedback error">{error}</p>}
+
+      {!loading && !error && (
         <div className="food-display-list">
           {filteredFoodList.length > 0 ? (
-            filteredFoodList.map(item => (
+            filteredFoodList.map((item) => (
               <FoodItem
                 key={item.id}
                 id={item.id}
@@ -76,14 +66,8 @@ export default function FoodDisplay({ searchQuery = '' }) {   // ✅ Accept sear
               />
             ))
           ) : (
-            <p>No dishes match your search.</p>
+            <p className="food-display-feedback">No dishes match your current filters.</p>
           )}
-        </div>
-      )}
-
-      {popupMessage && (
-        <div className="popup-message">
-          {popupMessage}
         </div>
       )}
     </div>

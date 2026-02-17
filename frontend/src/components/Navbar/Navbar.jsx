@@ -4,20 +4,17 @@ import { assets } from '../../assets/assets';
 import { Link, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../Context/StoreContext';
 
-export default function Navbar({ setShowLogin }) {
+export default function Navbar({ setShowLogin, searchQuery, setSearchQuery }) {
   const [menu, setMenu] = useState('home');
   const [popupMessage, setPopupMessage] = useState('');
-  const { getTotalCartAmount } = useContext(StoreContext);
+  const { getCartCount, token, logout } = useContext(StoreContext);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    showPopup('🚪 Logged out successfully');
+    logout();
+    showPopup('Logged out successfully');
     setTimeout(() => {
-      window.location.reload();
+      navigate('/');
     }, 1500);
   };
 
@@ -28,7 +25,7 @@ export default function Navbar({ setShowLogin }) {
 
   return (
     <div className="navbar">
-      <Link to='/'><img src={assets.logo} alt="" className='logo' /></Link>
+      <Link to="/" onClick={() => setMenu('home')}><img src={assets.logo} alt="Zomato" className="logo" /></Link>
 
       <ul className="navbar-menu">
         <Link to='/' onClick={() => setMenu('home')} className={menu === 'home' ? 'active' : ''}>Home</Link>
@@ -38,9 +35,18 @@ export default function Navbar({ setShowLogin }) {
       </ul>
 
       <div className="navbar-right">
+        <input
+          type="text"
+          className="navbar-search-input"
+          placeholder="Search dishes..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          aria-label="Search dishes"
+        />
+
         <div className="navbar-search-icon">
-          <Link to='/cart'><img src={assets.basket_icon} alt="" /></Link>
-          <div className={getTotalCartAmount() === 0 ? '' : 'dot'}></div>
+          <Link to='/cart'><img src={assets.basket_icon} alt="Cart" /></Link>
+          <div className={getCartCount() === 0 ? '' : 'dot'}></div>
         </div>
 
         {token ? (

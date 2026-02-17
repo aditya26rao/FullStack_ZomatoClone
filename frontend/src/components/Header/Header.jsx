@@ -1,14 +1,22 @@
-import React from 'react'
-import './Header.css'
+import React from 'react';
+import './Header.css';
+import { assets } from '../../assets/assets';
 
 export default function Header() {
+  const scrollToMenu = () => {
+    const menuEl = document.getElementById('explore-menu');
+    if (menuEl) {
+      menuEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
-    <div className='header'>
-       <div className="header-contents">
-          <h2>Order your favourite food here</h2>
-          <p>For over a decade, we’ve enabled our customers to discover new tastes, delivered right to their doorstep. Our app is packed with features that enable you to experience food delivery like never before.</p>
-          <button>View Menu</button>
-       </div>
+    <div className='header' style={{ backgroundImage: `url(${assets.header_img})` }}>
+      <div className="header-contents">
+        <h2>Order your favourite food here</h2>
+        <p>Explore top-rated meals, filter by category, and place orders in minutes.</p>
+        <button onClick={scrollToMenu}>View Menu</button>
+      </div>
     </div>
-  )
+  );
 }

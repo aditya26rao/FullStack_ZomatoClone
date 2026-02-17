@@ -3,9 +3,10 @@ import axios from 'axios';
 import './PlaceOrder.css';
 import { StoreContext } from '../../Context/StoreContext';
 import { useNavigate } from 'react-router-dom';
+import { buildApiUrl } from '../../config/api';
 
 export default function PlaceOrder() {
-  const { getTotalCartAmount, cartItems, clearCart } = useContext(StoreContext);
+  const { getTotalCartAmount, cartItems, clearCart, token } = useContext(StoreContext);
   const navigate = useNavigate();
 
   const subtotal = getTotalCartAmount();
@@ -33,29 +34,33 @@ export default function PlaceOrder() {
   };
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem('token');
     if (!token) {
-      showPopup('⚠️ Please login before placing an order.');
+      showPopup('Please login before placing an order.');
       navigate('/');
       return;
     }
 
     const orderItems = cartItemsArray
-      .filter(item => item.quantity > 0)
-      .map(item => ({
-        food_item: item.id || item.idMeal,
+      .filter((item) => item.quantity > 0 && Number.isInteger(Number(item.id)))
+      .map((item) => ({
+        food_item: Number(item.id),
         quantity: item.quantity,
       }));
 
+    if (orderItems.length === 0) {
+      showPopup('Cart has no valid items for checkout. Please add items again.');
+      return;
+    }
+
     try {
       const response = await axios.post(
-        'http://localhost:8000/api/orders/',
+        buildApiUrl('/api/orders/'),
         {
           ...formData,
           subtotal,
@@ -72,7 +77,6 @@ export default function PlaceOrder() {
       );
 
       if (response.status === 201 || response.status === 200) {
-        localStorage.removeItem('cartItems');
         clearCart();
         setFormData({
           first_name: '',
@@ -86,19 +90,15 @@ export default function PlaceOrder() {
           phone: '',
         });
 
-        showPopup('✅ Order placed successfully!');
+        showPopup('Order placed successfully.');
         setTimeout(() => navigate('/order-success'), 1500);
       }
     } catch (error) {
-      console.error('❌ Order error:', error);
-      let errMsg = '❌ Something went wrong. Please try again.';
+      console.error('Order error:', error);
+      let errMsg = 'Something went wrong. Please try again.';
       if (error.response) {
         const data = error.response.data;
-        errMsg =
-          data?.detail ||
-          data?.error ||
-          data?.message ||
-          JSON.stringify(data, null, 2);
+        errMsg = data?.detail || data?.error || data?.message || JSON.stringify(data, null, 2);
       } else if (error.message) {
         errMsg = error.message;
       }
@@ -133,28 +133,24 @@ export default function PlaceOrder() {
           <div>
             <div className="cart-total-detials">
               <p>Subtotal</p>
-              <p>₹{subtotal.toFixed(2)}</p>
+              <p>{`INR ${subtotal.toFixed(2)}`}</p>
             </div>
             <hr />
             <div className="cart-total-detials">
               <p>Delivery Fee</p>
-              <p>₹{deliveryFee.toFixed(2)}</p>
+              <p>{`INR ${deliveryFee.toFixed(2)}`}</p>
             </div>
             <hr />
             <div className="cart-total-detials">
               <b>Total</b>
-              <b>₹{finalTotal.toFixed(2)}</b>
+              <b>{`INR ${finalTotal.toFixed(2)}`}</b>
             </div>
           </div>
           <button type="submit">PROCEED TO PAYMENT</button>
         </div>
       </div>
 
-      {popupMessage && (
-        <div className="popup-message">
-          {popupMessage}
-        </div>
-      )}
+      {popupMessage && <div className="popup-message">{popupMessage}</div>}
     </form>
   );
 }
