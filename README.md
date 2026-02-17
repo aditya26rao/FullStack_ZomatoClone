@@ -1,140 +1,102 @@
-# 🍽️ Zomato Clone — Fullstack Food Delivery Web App
+# FullStack Zomato Clone
 
-A fullstack Zomato-inspired food delivery application built with **React.js**, **Django REST Framework**, and **MySQL**. This project simulates a real-world food ordering platform where users can browse menus, add items to cart, place orders, and manage their account.
+A food-ordering web app built with React (Vite) frontend and Django REST backend.
 
----
+## Tech Stack
+- Frontend: React 19, Vite, React Router, Axios
+- Backend: Django 5, Django REST Framework, SimpleJWT
+- Database: SQLite (default local) or PostgreSQL (optional)
 
-## 🚀 Live Demo
-
-🌐 Frontend: \[Deployed React App Link]
-🌐 Backend API: \[Deployed Django API Link]
-
-
----
-
-## 🛠 Tech Stack
-
-### Frontend:
-
-* React.js (with Hooks and Context API)
-* React Router DOM
-* Axios
-
-### Backend:
-
-* Django
-* Django REST Framework (DRF)
-* MySQL Database
-* Django CORS Headers
-
-### Deployment:
-
-* Frontend: Netlify / Vercel
-* Backend: Heroku / Railway / Render
-* Database: AWS RDS / PlanetScale / MySQL Server
-
----
-
-## ✨ Key Features
-
-✅ Browse food categories (Pizza, Burger, Drinks, etc.)
-✅ Add and remove items from cart
-✅ Dynamic cart total calculation
-✅ Place orders with delivery details
-✅ View previous orders
-✅ User authentication (Login & Signup)
-✅ Admin can manage categories, food items, and orders (optional)
-
----
-
-## 📂 Project Structure
-
-```
-├── backend/             # Django Project (API)
-│   ├── api/             # Django app (models, serializers, views)
-│   └── backend/         # Django settings, wsgi, urls
-│
-└── frontend/            # React.js Project
-    ├── public/
-    └── src/
-        ├── assets/
-        ├── components/
-        ├── pages/
-        ├── Context/     # StoreContext (Global State)
+## Project Structure
+```text
+ZomatoFullStackapp/
+  backend/   # Django API
+  frontend/  # React app
 ```
 
----
+## Features
+- Browse foods by category
+- Search foods by name/description/category
+- Add/remove cart items
+- Checkout and place order
+- JWT login/signup
+- View previous orders
 
-## ⚙️ Installation & Setup Guide
+## Prerequisites
+- Python 3.11+
+- Node.js 18+
+- npm
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/your-username/zomato-clone.git
-cd zomato-clone
-```
-
-### 2. Backend Setup (Django + DRF)
-
+## Backend Setup
 ```bash
 cd backend
-python -m venv env
-source env/bin/activate      # or env\Scripts\activate on Windows
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
+# source venv/bin/activate
+
 pip install -r requirements.txt
-python manage.py makemigrations
 python manage.py migrate
+python populate_food.py
 python manage.py runserver
 ```
 
-➡️ Update `ALLOWED_HOSTS` and database settings (`settings.py`) for production.
+Backend runs at: `http://127.0.0.1:8000`
 
-### 3. Frontend Setup (React)
-
+## Frontend Setup
 ```bash
 cd frontend
 npm install
-npm run dev        # or npm run build & serve for production
+npm run dev
 ```
 
-➡️ Update API Base URL in `StoreContext.js` to point to your Django backend URL.
+Frontend runs at: `http://localhost:5173`
 
----
-
-## 📅 Environment Variables
-
-#### Django (`backend/.env`)
-
-```
-SECRET_KEY=your-secret-key
-DEBUG=True
-DATABASE_NAME=your-db-name
-DATABASE_USER=your-db-user
-DATABASE_PASSWORD=your-db-password
+## Environment Variables
+Frontend (`frontend/.env`):
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-#### React (`frontend/.env`)
-
+Backend DB options (optional):
+- Default local: SQLite (no extra config required)
+- PostgreSQL: set
+```env
+DB_ENGINE=postgres
+DB_NAME=tomatodb
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
 ```
-REACT_APP_API_URL=https://your-backend-url/api/
+
+Or use:
+```env
+DATABASE_URL=postgres://user:pass@host:5432/dbname
 ```
 
----
+## API Endpoints
+- `GET /api/foods/`
+- `GET /api/foods/?category=<name>`
+- `GET /api/categories/`
+- `POST /api/register/`
+- `POST /api/token/`
+- `POST /api/token/refresh/`
+- `POST /api/orders/` (auth required)
+- `GET /api/previous-orders/` (auth required)
 
-## 🛒 Features to Add (Future Scope)
+## Common Commands
+```bash
+# backend
+python manage.py check
+python manage.py showmigrations
 
-* Payment gateway integration (Stripe, Razorpay)
-* Real-time order tracking
-* Admin dashboard for managing products and orders
-* Reviews & ratings
+# frontend
+npm run build
+npm run preview
+```
 
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+## Notes
+- Seed data script assigns local media images for food items.
+- If images don�t refresh immediately, hard refresh browser (`Ctrl+F5`).
